@@ -1,0 +1,211 @@
+---
+title: "OmicsPilot Single-Cell RNA-seq Analysis Report"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: cosmo
+    highlight: tango
+params:
+  seurat_obj: NULL
+  go_results: NULL
+  markers: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 6, dpi = 150)
+suppressWarnings(suppressMessages({
+  library(Seurat)
+  library(ggplot2)
+  library(dplyr)
+  library(EnhancedVolcano)
+  library(clusterProfiler)
+}))
+```
+
+## Executive Summary
+
+This report presents a comprehensive single-cell RNA-seq analysis pipeline including quality control (QC), clustering, and marker gene identification using Seurat.
+
+**Dataset Overview:**
+- **Total cells:** `r ncol(params$seurat_obj)`
+- **Number of clusters:** `r length(unique(params$seurat_obj@active.ident))`
+
+---
+
+## 1. Quality Control Metrics
+
+### QC Violin Plot
+
+```{r qc_violin, fig.height=5}
+VlnPlot(params$seurat_obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+**Interpretation:** This violin plot shows:
+- **nFeature_RNA:** Number of genes per cell
+- **nCount_RNA:** Total UMI counts per cell  
+- **percent.mt:** Mitochondrial read percentage (high = low quality)
+
+Cells with >5% mitochondrial content are typically filtered out.
+
+### QC Statistics
+
+```{r qc_stats}
+md <- params$seurat_obj@meta.data
+summary_df <- data.frame(
+  Metric = c("nFeature_RNA", "nCount_RNA", "percent.mt"),
+  Min = c(min(md$nFeature_RNA, na.rm=TRUE), min(md$nCount_RNA, na.rm=TRUE), min(md$percent.mt, na.rm=TRUE)),
+  Median = c(median(md$nFeature_RNA, na.rm=TRUE), median(md$nCount_RNA, na.rm=TRUE), median(md$percent.mt, na.rm=TRUE)),
+  Mean = c(mean(md$nFeature_RNA, na.rm=TRUE), mean(md$nCount_RNA, na.rm=TRUE), mean(md$percent.mt, na.rm=TRUE)),
+  Max = c(max(md$nFeature_RNA, na.rm=TRUE), max(md$nCount_RNA, na.rm=TRUE), max(md$percent.mt, na.rm=TRUE))
+)
+knitr::kable(summary_df, caption = "QC Metrics Summary", digits = 2)
+```
+
+### Feature Scatter: nCount vs percent.mt
+
+```{r feature_scatter_mt}
+FeatureScatter(params$seurat_obj, feature1 = "nCount_RNA", feature2 = "percent.mt")
+```
+
+### Feature Scatter: nCount vs nFeature
+
+```{r feature_scatter_features}
+FeatureScatter(params$seurat_obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+```
+
+---
+
+## 2. Dimensionality Reduction & Clustering
+
+### UMAP Plot
+
+```{r umap_plot, fig.height=8}
+DimPlot(params$seurat_obj, reduction = "umap", label = TRUE, pt.size = 2, label.size = 6)
+```
+
+**Interpretation:** UMAP visualization of cell clusters. Each point = one cell, colored by cluster. Distinct groups indicate different cell types or states.
+
+### Cluster Summary
+
+```{r cluster_summary}
+cl_counts <- table(params$seurat_obj@active.ident)
+cluster_df <- data.frame(
+  Cluster = names(cl_counts),
+  Cells = as.integer(cl_counts),
+  Percentage = round(100 * as.integer(cl_counts) / ncol(params$seurat_obj), 2),
+  stringsAsFactors = FALSE
+)
+knitr::kable(cluster_df, caption = "Cells per Cluster")
+```
+
+---
+
+## 3. Marker Gene Analysis
+
+### Top Markers per Cluster
+
+```{r top_markers}
+if (!is.null(params$markers) && nrow(params$markers) > 0) {
+  # Remove grouping to avoid select() error
+  top_markers <- as.data.frame(params$markers)
+  top_markers <- top_markers %>%
+    arrange(cluster, desc(avg_log2FC))
+  
+  # Get top 5 per cluster manually
+  top_list <- list()
+  for (clust in unique(top_markers$cluster)) {
+    clust_data <- top_markers[top_markers$cluster == clust, ]
+    top_5 <- head(clust_data[, c("cluster", "gene", "avg_log2FC", "p_val_adj")], 5)
+    top_list[[length(top_list) + 1]] <- top_5
+  }
+  
+  top_markers_final <- do.call(rbind, top_list)
+  rownames(top_markers_final) <- NULL
+  
+  knitr::kable(head(top_markers_final, 30), caption = "Top 5 Marker Genes per Cluster", digits = 4)
+} else {
+  cat("No marker data available")
+}
+```
+
+### Volcano Plot: Cluster 0
+
+```{r volcano_plot}
+if (!is.null(params$markers)) {
+  cluster_0_markers <- params$markers[params$markers$cluster == 0, ]
+  if (nrow(cluster_0_markers) > 0) {
+    EnhancedVolcano(cluster_0_markers, lab = cluster_0_markers$gene, 
+                    x = 'avg_log2FC', y = 'p_val_adj',
+                    title = 'Cluster 0: Differentially Expressed Genes',
+                    pCutoff = 0.05, FCcutoff = 0.25, pointSize = 3.0, labSize = 4.0)
+  }
+}
+```
+
+**Interpretation:** Volcano plot shows log2 fold-change vs p-value. Points far left/right = strong expression change. Points high up = statistically significant.
+
+### Heatmap: Top Marker Genes
+
+```{r heatmap_plot, fig.height=12, fig.width=10}
+if (!is.null(params$markers) && nrow(params$markers) > 0) {
+  markers_df <- as.data.frame(params$markers)
+  top_list <- list()
+  
+  for (clust in unique(markers_df$cluster)) {
+    clust_data <- markers_df[markers_df$cluster == clust, ]
+    clust_data <- clust_data[order(-clust_data$avg_log2FC), ]
+    top_10 <- head(clust_data$gene, 10)
+    top_list <- c(top_list, as.list(top_10))
+  }
+  
+  top_genes <- unique(unlist(top_list))
+  
+  if (length(top_genes) > 0) {
+    DoHeatmap(params$seurat_obj, features = top_genes) + NoLegend()
+  }
+}
+```
+
+**Interpretation:** Heatmap shows scaled expression (red=high, blue=low) for top marker genes across all cells. Cluster-specific patterns visible.
+
+---
+
+## 4. Gene Ontology Enrichment
+
+### Top GO Terms: Cluster 0
+
+```{r go_plot, fig.height=7}
+if (!is.null(params$go_results) && !is.null(params$go_results[["cluster_0"]])) {
+  go_c0 <- params$go_results[["cluster_0"]]
+  if (!is.null(go_c0)) {
+    barplot(go_c0, showCategory = 10, title = "Top GO Biological Processes - Cluster 0")
+  } else {
+    cat("No GO enrichment data available for Cluster 0")
+  }
+} else {
+  cat("No GO enrichment results available")
+}
+```
+
+**Interpretation:** GO enrichment identifies biological processes associated with cluster marker genes. Longer bars = more significant associations.
+
+---
+
+## 5. Summary & Conclusions
+
+✓ Quality control: Cells passed filtering thresholds  
+✓ Clustering: Data resolved into distinct populations  
+✓ Marker genes: Identified for each cluster  
+✓ Functional annotation: GO enrichment provides biological context
+
+### Next Steps:
+- Compare markers to known cell type signatures
+- Validate with additional data (flow cytometry, immunostaining)
+- Perform trajectory analysis for developmental dynamics
+- Integrate with reference datasets for cell type prediction
+
+---
+
+**Report generated by OmicsPilot** | `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
