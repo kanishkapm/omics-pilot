@@ -1,4 +1,4 @@
-# 🧬 OmicsPilot
+#  OmicsPilot
 
 **Single-cell RNA-seq analysis with AI-powered bioinformatics assistant**
 
@@ -8,30 +8,30 @@ A Shiny web application for analyzing 10X Genomics single-cell RNA-seq data with
 ![Shiny](https://img.shields.io/badge/Shiny-Web-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-🌐 **[Try OmicsPilot Online](https://kanishka-2004.shinyapps.io/SCRNA/)** - No installation required!
+**[Try OmicsPilot Online](https://kanishka-2004.shinyapps.io/SCRNA/)** - No installation required!
 
 ---
 
-## ✨ Features
+##  Features
 
-- 📊 **10X Genomics Support** - Direct import of matrix.mtx, features.tsv, barcodes.tsv files
-- 🔬 **Quality Control** - Violin plots, scatter plots, QC metrics (nFeature_RNA, nCount_RNA, percent.mt)
-- 📈 **Advanced Analysis** - PCA, UMAP dimensionality reduction, clustering (resolution 0.5)
-- 🧬 **Marker Detection** - FindAllMarkers for differential expression analysis
-- 📋 **GO Enrichment** - Gene Ontology enrichment analysis per cluster
-- 🤖 **Hybrid AI Assistant** - Local FAQ + OpenAI GPT-4o-mini for bioinformatics Q&A
-- 📚 **Custom FAQ Training** - Teach the assistant domain-specific answers
-- 📑 **Auto Report** - Generate professional HTML reports with plots and interpretations
-- 💾 **Session Management** - Upload/download custom FAQs as CSV
+- **10X Genomics Support** - Direct import of matrix.mtx, features.tsv, barcodes.tsv files
+- **Quality Control** - Violin plots, scatter plots, QC metrics (nFeature_RNA, nCount_RNA, percent.mt)
+- **Advanced Analysis** - PCA, UMAP dimensionality reduction, clustering (resolution 0.5)
+- **Marker Detection** - FindAllMarkers for differential expression analysis
+- **GO Enrichment** - Gene Ontology enrichment analysis per cluster
+- **Hybrid AI Assistant** - Local FAQ + OpenAI GPT-4o-mini for bioinformatics Q&A
+- **Custom FAQ Training** - Teach the assistant domain-specific answers
+- **Auto Report** - Generate professional HTML reports with plots and interpretations
+- **Session Management** - Upload/download custom FAQs as CSV
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Try Online (No Installation)
 
 **No setup needed! Access the live app here:**  
-🌐 **https://kanishka-2004.shinyapps.io/SCRNA/**
+**https://kanishka-2004.shinyapps.io/SCRNA/**
 
 Just upload your 10X files and start analyzing!
 
@@ -88,16 +88,16 @@ The app will open at `http://localhost:3838`
 **Live Application:** https://kanishka-2004.shinyapps.io/SCRNA/
 
 Try OmicsPilot without installing anything:
-- ✅ Upload your 10X Genomics data
-- ✅ Run analysis in the cloud
-- ✅ Use AI assistant (with your own API key in `.Renviron`)
-- ✅ Download reports
+- Upload your 10X Genomics data
+- Run analysis in the cloud
+- Use AI assistant (with your own API key in `.Renviron`)
+- Download reports
 
 **Note:** The online version also requires a `.Renviron` file with your OpenAI API key for full AI features.
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 ### Step 1: Upload Data
 
@@ -147,7 +147,7 @@ Ask questions in the **Chat panel**:
 
 ---
 
-## 🤖 AI Assistant
+## AI Assistant
 
 ### Local Mode (No API calls)
 - Greetings & basic questions
@@ -162,8 +162,8 @@ Ask questions in the **Chat panel**:
 - Any question not in local FAQ
 
 **Status Indicator:**
-- 🟢 **✓ OpenAI Ready** - API key loaded
-- 🔴 **✗ No API Key** - Using local FAQ only
+- **✓ OpenAI Ready** - API key loaded
+- **✗ No API Key** - Using local FAQ only
 
 ### Teach the Assistant
 
@@ -174,7 +174,7 @@ Ask questions in the **Chat panel**:
 
 ---
 
-## 📁 File Structure
+## File Structure
 
 ```
 omics-pilot/
@@ -187,9 +187,9 @@ omics-pilot/
 
 ---
 
-## 🔐 Security
+## Security
 
-⚠️ **Important: Never commit `.Renviron` to GitHub**
+**Important: Never commit `.Renviron` to GitHub**
 
 - `.Renviron` contains your OpenAI API key
 - It's automatically ignored by `.gitignore`
@@ -198,7 +198,7 @@ omics-pilot/
 
 ---
 
-## 📊 Pipeline Details
+## Pipeline Details
 
 ### Analysis Steps
 
@@ -216,7 +216,7 @@ omics-pilot/
 
 ---
 
-## 💡 Examples
+## Examples
 
 ### Example 1: Basic Analysis
 ```
@@ -243,7 +243,7 @@ Answer: "Based on marker analysis, we see immune cells (CD45+), epithelial cells
 
 ---
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Problem: API Key not loading
 ```r
@@ -269,7 +269,7 @@ install.packages("Seurat")  # May take 5-10 minutes
 
 ---
 
-## 📚 Resources
+## Resources
 
 - **Seurat Documentation**: https://satijalab.org/seurat/
 - **10X Genomics**: https://www.10xgenomics.com/
@@ -279,7 +279,7 @@ install.packages("Seurat")  # May take 5-10 minutes
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Found a bug or have a feature request?
 
@@ -298,7 +298,7 @@ This project is licensed under the **MIT License** - see the LICENSE file for de
 
 ---
 
-## 👥 Authors
+## Authors
 
 **Kanishka P M**
 - GitHub: [@kanishkapm](https://github.com/kanishkapm)
@@ -311,7 +311,7 @@ For questions/support: Open an issue on GitHub
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Shiny](https://shiny.posit.co/)
 - Analysis powered by [Seurat](https://satijalab.org/seurat/)
@@ -320,7 +320,7 @@ For questions/support: Open an issue on GitHub
 
 ---
 
-## ⭐ If you find OmicsPilot useful, please star this repository!
+## If you find OmicsPilot useful, please star this repository!
 
 ---
 
